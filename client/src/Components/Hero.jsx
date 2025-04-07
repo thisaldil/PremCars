@@ -7,6 +7,11 @@ const Hero = ({ onBookNowClick }) => {
       behavior: "smooth",
     });
   };
+  const scrollToBookNow = () => {
+    document.getElementById("booking")?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
   return (
     <section className="relative bg-blue-700 text-white">
@@ -28,7 +33,7 @@ const Hero = ({ onBookNowClick }) => {
           </p>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
             <button
-              onClick={onBookNowClick}
+              onClick={scrollToBookNow}
               className="bg-white text-blue-700 hover:bg-gray-100 px-8 py-3 rounded-md font-medium flex items-center justify-center"
             >
               Book a Car <ChevronRight className="ml-2 h-5 w-5" />

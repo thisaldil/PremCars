@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Car } from "lucide-react";
 import carlogo from "../assets/photos/Removal-50.png";
 
-const Header = ({ onBookNowClick }) => {
+const Header = ({ onBookNowClick, onOpenBankInfo }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const Header = ({ onBookNowClick }) => {
   };
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-white shadow-md  top-0 z-50">
       <div className="container mx-auto px-4 py-2">
         {/* Top Contact Info */}
         <div className="hidden md:flex justify-between items-center text-sm text-gray-600 border-b border-gray-100 pb-2">
@@ -80,11 +80,12 @@ const Header = ({ onBookNowClick }) => {
               Contact
             </button>
             <button
-              onClick={onBookNowClick}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
+              onClick={onOpenBankInfo}
+              className="block font-medium hover:text-blue-600 transition-colors"
             >
-              Book Now
+              Paydetails
             </button>
+
             {/* Admin Login Button for Desktop */}
             <button
               onClick={() => navigate("/admin/login")}
@@ -155,17 +156,16 @@ const Header = ({ onBookNowClick }) => {
                   Contact
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={onOpenBankInfo}
+                  className="block font-medium hover:text-blue-600 transition-colors"
+                >
+                  Paydetails
+                </button>
+              </li>
             </ul>
           </nav>
-
-          <div className="mt-4">
-            <button
-              onClick={onBookNowClick}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
-            >
-              Book Now
-            </button>
-          </div>
         </div>
       )}
     </header>
