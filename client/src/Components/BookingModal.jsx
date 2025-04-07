@@ -1,16 +1,57 @@
-import React from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
+import PhoneInput from "react-phone-input-2";
+import API from "../api/axios"; // Ensure path is correct
 
 const BookingModal = ({ isOpen, onClose, carDetails, bookingDetails }) => {
-  if (!isOpen) return null;
+  const [userDetails, setUserDetails] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically handle the payment processing
-    // For now, we'll just show a success message
-    alert("Booking successful! We will contact you shortly.");
-    onClose();
+
+    const payload = {
+      name: userDetails.name,
+      email: userDetails.email,
+      phone: userDetails.phone,
+      car: {
+        id: carDetails._id,
+        name: carDetails.name,
+        pricePerDay: carDetails.pricePerDay,
+        image: carDetails.image,
+      },
+      ...bookingDetails,
+    };
+
+    try {
+      await API.post("/bookings", payload);
+
+      alert(
+        `${userDetails.name}, we will contact you soon with payment details. Have a nice day!`
+      );
+
+      // Reset state
+      setUserDetails({ name: "", email: "", phone: "" });
+      onClose();
+    } catch (err) {
+      console.error("Failed to submit booking", err);
+      alert("Failed to submit booking. Please try again.");
+    }
   };
+
+  const handlePayClick = () => {
+    alert("You will be redirected to the payment guide or gateway.");
+  };
+
+  const isFormValid =
+    userDetails.name.trim() !== "" &&
+    userDetails.phone.trim() !== "" &&
+    userDetails.email.trim() !== "";
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -22,20 +63,31 @@ const BookingModal = ({ isOpen, onClose, carDetails, bookingDetails }) => {
           <X className="h-6 w-6" />
         </button>
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Confirm Booking</h2>
+          <h2 className="text-2xl font-bold mb-4">Ask for Availability</h2>
+
           {carDetails && (
-            <div className="mb-6">
+            <div className="mb-4">
               <img
                 src={carDetails.image}
                 alt={carDetails.name}
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full h-48 object-cover rounded-lg"
               />
-              <h3 className="text-xl font-semibold">{carDetails.name}</h3>
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={handlePayClick}
+                  className="inline-flex items-center text-sm border border-blue-600 text-blue-600 font-medium px-3 py-1 rounded hover:bg-blue-50"
+                >
+                  💳 How to Pay
+                </button>
+              </div>
+              <h3 className="text-xl font-semibold mt-4">{carDetails.name}</h3>
               <p className="text-blue-600 font-bold">
                 ${carDetails.pricePerDay} / day
               </p>
             </div>
           )}
+
           {bookingDetails && (
             <div className="mb-6 space-y-2 text-sm">
               <p>
@@ -52,45 +104,50 @@ const BookingModal = ({ isOpen, onClose, carDetails, bookingDetails }) => {
               </p>
             </div>
           )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Card Number
-              </label>
-              <input
-                type="text"
-                placeholder="1234 5678 9012 3456"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expiry Date
-                </label>
-                <input
-                  type="text"
-                  placeholder="MM/YY"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CVC
-                </label>
-                <input
-                  type="text"
-                  placeholder="123"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4 text-center">
+            <input
+              type="text"
+              placeholder="Your Name"
+              value={userDetails.name}
+              onChange={(e) =>
+                setUserDetails({ ...userDetails, name: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={userDetails.email}
+              onChange={(e) =>
+                setUserDetails({ ...userDetails, email: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+
+            <PhoneInput
+              country={"lk"}
+              value={userDetails.phone}
+              onChange={(phone) => setUserDetails({ ...userDetails, phone })}
+              inputProps={{
+                name: "phone",
+                required: true,
+              }}
+              containerClass="w-full"
+              inputClass="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              disabled={!isFormValid}
+              className={`w-full text-white font-medium py-2 px-4 rounded transition-colors ${
+                isFormValid
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-300 cursor-not-allowed"
+              }`}
             >
               Confirm Booking
             </button>

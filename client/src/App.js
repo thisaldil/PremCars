@@ -5,9 +5,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext"; // Import auth context
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
-// User Components
 import Header from "./Components/Header";
 import Hero from "./Components/Hero";
 import BookingForm from "./Components/BookingForm";
@@ -20,19 +19,17 @@ import Footer from "./Components/Footer.jsx";
 import BookingModal from "./Components/BookingModal";
 import UseBooking from "./Hooks/UseBooking";
 
-// Admin Components
 import AdminLayout from "./admin/components/AdminLayout";
 import AdminDashboard from "./admin/Pages/AdminDashboard.jsx";
 import AdminLogin from "./admin/Pages/AdminLogin.jsx";
+import AdminCars from "./admin/Pages/AdminCars.jsx";
+import AdminBookings from "./admin/Pages/AdminBookings.jsx";
 
-// ✅ Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
-
   if (!isAuthenticated || user?.role !== "admin") {
     return <Navigate to="/admin/login" replace />;
   }
-
   return children;
 };
 
@@ -48,25 +45,29 @@ function App() {
 
   return (
     <AuthProvider>
-      {" "}
-      {/* ✅ Wrap everything inside AuthProvider */}
       <Router>
         <div className="flex flex-col min-h-screen bg-white">
           <Routes>
-            {/* ✅ Admin Routes (Protected) */}
+            {/* Admin Login */}
             <Route path="/admin/login" element={<AdminLogin />} />
+
+            {/* Protected Admin Routes */}
             <Route
               path="/admin/*"
               element={
                 <ProtectedRoute>
-                  <AdminLayout>
-                    <AdminDashboard />
-                  </AdminLayout>
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="cars" element={<AdminCars />} />
+              <Route path="bookings" element={<AdminBookings />} />
+              {/* Add more admin pages like below */}
+              {/* <Route path="bookings" element={<BookingsPage />} /> */}
+            </Route>
 
-            {/* ✅ User Routes */}
+            {/* User-facing routes */}
             <Route
               path="/"
               element={
@@ -76,7 +77,10 @@ function App() {
                     <Hero />
                     <BookingForm onSubmit={handleBookingSubmit} />
                     <Services />
-                    <CarFleet onCarSelect={handleCarSelect} />
+                    <CarFleet
+                      onCarSelect={handleCarSelect}
+                      bookingData={bookingFormData}
+                    />
                     <Testimonials />
                     <AboutUs />
                     <Contact />

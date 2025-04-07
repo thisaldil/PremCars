@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
   Car,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-const AdminLayout = ({ children }) => {
+const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const AdminLayout = ({ children }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
@@ -83,8 +83,9 @@ const AdminLayout = ({ children }) => {
           </div>
         </div>
       </div>
-      {/* Main content */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
+
+      {/* Main content wrapper */}
+      <div className="lg:pl-64 flex flex-col flex-1">
         {/* Mobile header */}
         <div className="sticky top-0 z-40 lg:hidden bg-white border-b">
           <div className="flex items-center justify-between p-4">
@@ -97,8 +98,11 @@ const AdminLayout = ({ children }) => {
             </button>
           </div>
         </div>
+
         {/* Page content */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 py-6 px-4 sm:px-6 lg:px-8 bg-gray-100">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
