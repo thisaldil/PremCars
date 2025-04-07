@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import API from "../api/axios"; // Ensure path is correct
+import { useNavigate } from "react-router-dom";
 
 const BookingModal = ({ isOpen, onClose, carDetails, bookingDetails }) => {
   const [userDetails, setUserDetails] = useState({
@@ -9,7 +10,7 @@ const BookingModal = ({ isOpen, onClose, carDetails, bookingDetails }) => {
     email: "",
     phone: "",
   });
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -43,7 +44,7 @@ const BookingModal = ({ isOpen, onClose, carDetails, bookingDetails }) => {
   };
 
   const handlePayClick = () => {
-    alert("You will be redirected to the payment guide or gateway.");
+    navigate("/how-to-pay");
   };
 
   const isFormValid =

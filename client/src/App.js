@@ -18,6 +18,7 @@ import Contact from "./Components/Contact";
 import Footer from "./Components/Footer.jsx";
 import BookingModal from "./Components/BookingModal";
 import UseBooking from "./Hooks/UseBooking";
+import BankInfo from "./Components/BankInfo";
 
 import AdminLayout from "./admin/components/AdminLayout";
 import AdminDashboard from "./admin/Pages/AdminDashboard.jsx";
@@ -95,6 +96,7 @@ function App() {
                 </>
               }
             />
+            <Route path="/how-to-pay" element={<BankInfo />} />
           </Routes>
         </div>
       </Router>
