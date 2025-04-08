@@ -1,64 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import API from "../../api/axios";
 import {
+  ArrowUpRight,
   Car,
-  Users,
   Calendar,
   DollarSign,
   TrendingUp,
-  ArrowUpRight,
+  Users,
 } from "lucide-react";
 
 const AdminDashboard = () => {
-  const stats = [
-    {
-      title: "Total Bookings",
-      value: "1,234",
-      change: "+12.3%",
-      icon: Calendar,
-    },
-    {
-      title: "Active Cars",
-      value: "45",
-      change: "+5.4%",
-      icon: Car,
-    },
-    {
-      title: "Total Customers",
-      value: "892",
-      change: "+18.2%",
-      icon: Users,
-    },
-    {
-      title: "Revenue",
-      value: "$52,389",
-      change: "+8.1%",
-      icon: DollarSign,
-    },
-  ];
+  const [stats, setStats] = useState([]);
+  const [recentBookings, setRecentBookings] = useState([]);
 
-  const recentBookings = [
-    {
-      id: 1,
-      customer: "John Doe",
-      car: "Toyota Axio",
-      date: "2024-02-15",
-      status: "Active",
-    },
-    {
-      id: 2,
-      customer: "Jane Smith",
-      car: "Honda Vezel",
-      date: "2024-02-14",
-      status: "Completed",
-    },
-    {
-      id: 3,
-      customer: "Mike Johnson",
-      car: "Mercedes-Benz E-Class",
-      date: "2024-02-14",
-      status: "Pending",
-    },
-  ];
+  useEffect(() => {
+    fetchDashboardStats();
+    fetchRecentBookings();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const [bookingsRes, carsRes, driversRes] = await Promise.all([
+        API.get("/bookings"),
+        API.get("/cars"),
+        API.get("/drivers"),
+      ]);
+
+      const bookings = bookingsRes.data;
+      const cars = carsRes.data;
+      const drivers = driversRes.data;
+
+      const confirmedBookings = bookings.filter(
+        (b) => b.status === "Confirmed"
+      );
+      const uniqueCustomers = new Set(bookings.map((b) => b.email)).size;
+      const totalRevenue = confirmedBookings.reduce((acc, b) => {
+        const start = new Date(b.pickupDate);
+        const end = new Date(b.dropoffDate);
+        const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        let rate = b.car.pricePerDay;
+        if (b.withDriver) {
+          if (rate < 45) rate = 10000;
+          else if (rate < 70) rate = 18000;
+          else rate = 25000;
+        }
+        return acc + days * rate;
+      }, 0);
+
+      setStats([
+        {
+          title: "Total Bookings",
+          value: bookings.length.toString(),
+          change: "+12.3%",
+        },
+        {
+          title: "Active Cars",
+          value: cars.length.toString(),
+          change: "+5.4%",
+        },
+        {
+          title: "Total Customers",
+          value: uniqueCustomers.toString(),
+          change: "+18.2%",
+        },
+        {
+          title: "Revenue",
+          value: `LKR ${totalRevenue.toLocaleString()}`,
+          change: "+8.1%",
+        },
+      ]);
+    } catch (err) {
+      console.error("Failed to fetch dashboard stats", err);
+    }
+  };
+
+  const fetchRecentBookings = async () => {
+    try {
+      const res = await API.get("/bookings");
+      const sorted = res.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setRecentBookings(sorted.slice(0, 5));
+    } catch (err) {
+      console.error("Failed to fetch recent bookings", err);
+    }
+  };
+
+  const iconMap = {
+    "Total Bookings": Calendar,
+    "Active Cars": Car,
+    "Total Customers": Users,
+    Revenue: DollarSign,
+  };
 
   return (
     <div className="space-y-8">
@@ -70,7 +103,7 @@ const AdminDashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
-          const Icon = stat.icon;
+          const Icon = iconMap[stat.title];
           return (
             <div
               key={index}
@@ -115,24 +148,28 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {recentBookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td className="px-6 py-4 text-gray-900">#{booking.id}</td>
+                <tr key={booking._id}>
                   <td className="px-6 py-4 text-gray-900">
-                    {booking.customer}
+                    #{booking._id.slice(-5)}
                   </td>
-                  <td className="px-6 py-4 text-gray-900">{booking.car}</td>
-                  <td className="px-6 py-4 text-gray-900">{booking.date}</td>
+                  <td className="px-6 py-4 text-gray-900">{booking.name}</td>
+                  <td className="px-6 py-4 text-gray-900">
+                    {booking.car.name}
+                  </td>
+                  <td className="px-6 py-4 text-gray-900">
+                    {booking.pickupDate}
+                  </td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        booking.status === "Active"
+                        booking.status === "Confirmed"
                           ? "bg-green-100 text-green-800"
-                          : booking.status === "Completed"
-                          ? "bg-gray-100 text-gray-800"
+                          : booking.status === "Cancelled"
+                          ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {booking.status}
+                      {booking.status || "Pending"}
                     </span>
                   </td>
                 </tr>

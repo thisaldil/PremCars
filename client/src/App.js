@@ -25,6 +25,7 @@ import AdminDashboard from "./admin/Pages/AdminDashboard";
 import AdminLogin from "./admin/Pages/AdminLogin";
 import AdminCars from "./admin/Pages/AdminCars";
 import AdminBookings from "./admin/Pages/AdminBookings";
+import AdminDrivers from "./admin/Pages/AdminDrivers";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
@@ -72,6 +73,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="cars" element={<AdminCars />} />
               <Route path="bookings" element={<AdminBookings />} />
+              <Route path="drivers" element={<AdminDrivers />} />
             </Route>
 
             <Route

@@ -4,10 +4,14 @@ import { Mail, Phone, CheckCircle, XCircle } from "lucide-react";
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [editing, setEditing] = useState({});
+  const [activeTab, setActiveTab] = useState("Pending");
 
   useEffect(() => {
     fetchBookings();
+    fetchDrivers();
+    autoFreeDrivers();
   }, []);
 
   const fetchBookings = async () => {
@@ -16,6 +20,56 @@ const AdminBookings = () => {
       setBookings(res.data);
     } catch (err) {
       console.error("Failed to fetch bookings", err);
+    }
+  };
+
+  const fetchDrivers = async () => {
+    try {
+      const res = await API.get("/drivers");
+      setDrivers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch drivers", err);
+    }
+  };
+  const deleteCancelledBookings = async () => {
+    try {
+      const cancelled = bookings.filter((b) => b.status === "Cancelled");
+      await Promise.all(cancelled.map((b) => API.delete(`/bookings/${b._id}`)));
+      fetchBookings();
+    } catch (err) {
+      console.error("Failed to delete cancelled bookings", err);
+    }
+  };
+
+  const autoFreeDrivers = async () => {
+    try {
+      const today = new Date();
+      const res = await API.get("/bookings");
+      const allBookings = res.data;
+
+      const driverMap = {};
+
+      allBookings.forEach((booking) => {
+        if (
+          booking.driver &&
+          new Date(booking.dropoffDate) >= today &&
+          new Date(booking.pickupDate) <= today
+        ) {
+          driverMap[booking.driver] = true;
+        }
+      });
+
+      drivers.forEach(async (driver) => {
+        const shouldBeBusy = driverMap[driver.name];
+        const desiredStatus = shouldBeBusy ? "busy" : "free";
+        if (driver.status !== desiredStatus) {
+          await API.put(`/drivers/status/${driver.name}`, {
+            status: desiredStatus,
+          });
+        }
+      });
+    } catch (err) {
+      console.error("Failed to auto update driver statuses", err);
     }
   };
 
@@ -50,10 +104,43 @@ const AdminBookings = () => {
     };
   };
 
+  const isDateOverlap = (start1, end1, start2, end2) => {
+    return (
+      new Date(start1) <= new Date(end2) && new Date(end1) >= new Date(start2)
+    );
+  };
+
+  const isDriverAvailable = (driverName, currentBooking) => {
+    return !bookings.some((booking) => {
+      return (
+        booking.driver === driverName &&
+        booking._id !== currentBooking._id &&
+        isDateOverlap(
+          currentBooking.pickupDate,
+          currentBooking.dropoffDate,
+          booking.pickupDate,
+          booking.dropoffDate
+        )
+      );
+    });
+  };
+
   const updateBooking = async (id) => {
     try {
       const data = editing[id];
       await API.put(`/bookings/${id}`, data);
+
+      if (data.driver) {
+        const today = new Date().toISOString().split("T")[0];
+        const booking = bookings.find((b) => b._id === id);
+        if (
+          new Date(today) >= new Date(booking.pickupDate) &&
+          new Date(today) <= new Date(booking.dropoffDate)
+        ) {
+          await API.put(`/drivers/status/${data.driver}`, { status: "busy" });
+        }
+      }
+
       setEditing((prev) => {
         const copy = { ...prev };
         delete copy[id];
@@ -88,15 +175,45 @@ const AdminBookings = () => {
     )}&body=${encodeURIComponent(body)}`;
   };
 
+  const tabs = ["Pending", "Confirmed", "Cancelled"];
+
+  const filteredBookings = bookings.filter(
+    (booking) => (booking.status || "Pending") === activeTab
+  );
+
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-2xl font-bold text-gray-800">All Bookings</h1>
 
-      {bookings.length === 0 ? (
+      <div className="flex space-x-4 mb-4">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border ${
+              activeTab === tab
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+        {activeTab === "Cancelled" && (
+          <button
+            onClick={deleteCancelledBookings}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded"
+          >
+            Remove Cancelled
+          </button>
+        )}
+      </div>
+
+      {filteredBookings.length === 0 ? (
         <p className="text-gray-600">No bookings found.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {bookings.map((booking) => {
+          {filteredBookings.map((booking) => {
             const bill = calculateBill(booking.car, booking);
             const edit = editing[booking._id] || {};
 
@@ -114,6 +231,8 @@ const AdminBookings = () => {
                     className={`text-xs px-2 py-1 rounded ${
                       booking.status === "Confirmed"
                         ? "bg-green-100 text-green-800"
+                        : booking.status === "Cancelled"
+                        ? "bg-red-100 text-red-800"
                         : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
@@ -198,15 +317,24 @@ const AdminBookings = () => {
                     <option value="Cancelled">Cancelled</option>
                   </select>
 
-                  <input
-                    type="text"
-                    placeholder="Assign Driver Name"
+                  <select
                     value={edit.driver || booking.driver || ""}
                     onChange={(e) =>
                       handleChange(booking._id, "driver", e.target.value)
                     }
                     className="border px-2 py-1 rounded"
-                  />
+                  >
+                    <option value="">Assign Driver</option>
+                    {drivers.map((driver) => (
+                      <option
+                        key={driver.name}
+                        value={driver.name}
+                        disabled={!isDriverAvailable(driver.name, booking)}
+                      >
+                        {driver.name} ({driver.status})
+                      </option>
+                    ))}
+                  </select>
 
                   <button
                     onClick={() => updateBooking(booking._id)}

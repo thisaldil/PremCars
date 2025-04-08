@@ -7,7 +7,7 @@ const Testimonials = () => {
       name: "Emma Thompson",
       country: "United Kingdom",
       image:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+        "https://th.bing.com/th/id/OIP.rIPUCsbBL-fiech4ZhbrTQHaKN?rs=1&pid=ImgDetMain",
       stars: 5,
       text: "PREM Car Rental made our Sri Lankan adventure perfect! The car was clean and well-maintained, and the driver was knowledgeable and friendly. Highly recommend for anyone visiting this beautiful island.",
     },

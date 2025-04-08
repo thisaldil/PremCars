@@ -23,14 +23,14 @@ const AdminLayout = () => {
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Bookings", href: "/admin/bookings", icon: Calendar },
     { name: "Cars", href: "/admin/cars", icon: Car },
-    { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Drivers", href: "/admin/drivers", icon: Users },
     { name: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   const handleLogout = () => {
-    logout();
-    navigate("/admin/login");
+    logout(); // clears token and state
+    navigate("/admin/login"); // redirects to login
   };
 
   const isActive = (path) => location.pathname === path;
@@ -100,7 +100,7 @@ const AdminLayout = () => {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 py-6 px-4 sm:px-6 lg:px-8 bg-gray-100">
+        <main className="flex-1 px-4 py-2 bg-gray-100">
           <Outlet />
         </main>
       </div>
