@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
+import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -20,20 +21,29 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("Contact form submitted:", formData);
-    setSubmitStatus("success");
-    // Reset form after successful submission
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    });
-    // Reset status after 3 seconds
-    setTimeout(() => {
-      setSubmitStatus("idle");
-    }, 3000);
+    setSubmitStatus("sending");
+
+    emailjs
+      .send(
+        "service_708ilvy", // 🔁 Replace with your actual Service ID
+        "template_c9fgx1y", // 🔁 Replace with your actual Template ID
+        formData,
+        "dktlpWieV_ptjyfgB" // 🔁 Replace with your Public Key (User ID)
+      )
+      .then(
+        () => {
+          setSubmitStatus("success");
+          setFormData({ name: "", email: "", subject: "", message: "" });
+
+          setTimeout(() => {
+            setSubmitStatus("idle");
+          }, 3000);
+        },
+        (error) => {
+          console.error("EmailJS error:", error);
+          setSubmitStatus("error");
+        }
+      );
   };
 
   return (
@@ -82,6 +92,8 @@ const Contact = () => {
               </div>
             </div>
           </div>
+
+          {/* Contact Form */}
           <div className="lg:col-span-2">
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
               <h3 className="text-xl font-semibold mb-6">Send a Message</h3>
@@ -93,11 +105,12 @@ const Contact = () => {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="John Doe"
+                      name="name"
                       value={formData.name}
                       onChange={handleChange}
                       required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                      placeholder="John Doe"
                     />
                   </div>
                   <div>
@@ -106,11 +119,12 @@ const Contact = () => {
                     </label>
                     <input
                       type="email"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="john@example.com"
+                      name="email"
                       value={formData.email}
                       onChange={handleChange}
                       required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                      placeholder="john@example.com"
                     />
                   </div>
                 </div>
@@ -120,11 +134,12 @@ const Contact = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Booking Inquiry"
+                    name="subject"
                     value={formData.subject}
                     onChange={handleChange}
                     required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                    placeholder="Booking Inquiry"
                   />
                 </div>
                 <div className="mb-6">
@@ -132,11 +147,12 @@ const Contact = () => {
                     Message
                   </label>
                   <textarea
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-                    placeholder="How can we help you?"
+                    name="message"
                     value={formData.message}
                     onChange={handleChange}
                     required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md h-32"
+                    placeholder="How can we help you?"
                   ></textarea>
                 </div>
                 <div>
@@ -144,14 +160,21 @@ const Contact = () => {
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium transition-colors flex items-center"
                   >
-                    Send Message <Send className="h-4 w-4 ml-2" />
+                    {submitStatus === "sending" ? "Sending..." : "Send Message"}{" "}
+                    <Send className="h-4 w-4 ml-2" />
                   </button>
                 </div>
               </form>
+
               {submitStatus === "success" && (
-                <div className="mt-4 text-green-500">
+                <p className="mt-4 text-green-600">
                   Message sent successfully!
-                </div>
+                </p>
+              )}
+              {submitStatus === "error" && (
+                <p className="mt-4 text-red-600">
+                  Failed to send message. Please try again later.
+                </p>
               )}
             </div>
           </div>
