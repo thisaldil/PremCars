@@ -28,11 +28,8 @@ import AdminBookings from "./admin/Pages/AdminBookings";
 import AdminDrivers from "./admin/Pages/AdminDrivers";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated || user?.role !== "admin") {
-    return <Navigate to="/admin/login" replace />;
-  }
-  return children;
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/admin/login" replace />;
 };
 
 function App() {

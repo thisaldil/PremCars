@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import carlogo from "../../assets/photos/crlogo.png";
 import API from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,12 +17,13 @@ const AdminLogin = () => {
 
     try {
       const res = await API.post("/auth/login", { email, password });
-
       if (res.status === 200 && res.data.token) {
-        localStorage.setItem("adminToken", res.data.token);
+        login(res.data.token); // ✅ use context login()
         navigate("/admin");
+        alert("Login successful!");
       } else {
         setError("Login failed. Invalid response from server.");
+        alert("Login failed. Invalid response from server.");
       }
     } catch (err) {
       if (err.response?.data?.message) {

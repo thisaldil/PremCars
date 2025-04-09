@@ -85,7 +85,7 @@ const AdminLayout = () => {
       </div>
 
       {/* Main content wrapper */}
-      <div className="lg:pl-64 flex flex-col flex-1">
+      <div className=" flex flex-col flex-1">
         {/* Mobile header */}
         <div className="sticky top-0 z-40 lg:hidden bg-white border-b">
           <div className="flex items-center justify-between p-4">
