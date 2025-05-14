@@ -143,7 +143,7 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} PREM Car Rental. All rights
             reserved. Powered By{" "}
             <a
-              href="www.linkedin.com/in/thisal-gonsalkorala"
+              href="https://www.linkedin.com/in/thisal-gonsalkorala"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition"
