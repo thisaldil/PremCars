@@ -141,7 +141,15 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400 text-sm">
           <p>
             &copy; {new Date().getFullYear()} PREM Car Rental. All rights
-            reserved.
+            reserved. Powered By{" "}
+            <a
+              href="www.linkedin.com/in/thisal-gonsalkorala"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition"
+            >
+              🚗
+            </a>
           </p>
         </div>
       </div>
