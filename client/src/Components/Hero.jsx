@@ -1,7 +1,9 @@
 import React, { memo } from "react";
 import { ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = ({ onBookNowClick }) => {
+  const navigate = useNavigate();
   const scrollToFleet = () => {
     document.getElementById("cars")?.scrollIntoView({
       behavior: "smooth",
@@ -49,18 +51,17 @@ const Hero = ({ onBookNowClick }) => {
       </div>
       <div className="flex items-end justify-end fixed bottom-0 right-0 mb-4 mr-4 z-10">
         <div>
-          <a
-            title="Srilanka"
-            href="https://www.instagram.com/dr.notorio.us/"
-            target="_blank"
-            className="block w-16 h-16 rounded-full transition-all shadow hover:shadow-lg transform hover:scale-110 hover:rotate-12"
+          <button
+            title="Sri Lanka"
+            onClick={() => navigate("/destination")}
+            className="block w-16 h-16 rounded-full transition-all shadow hover:shadow-lg transform hover:scale-110 hover:rotate-12 overflow-hidden"
           >
             <img
               className="object-cover object-center w-full h-full rounded-full"
               src="https://th.bing.com/th/id/OIP.hmH-N9qvexNOG3st84TGxQHaGD?cb=iwp2&w=1920&h=1571&rs=1&pid=ImgDetMain"
-              alt="Buy me a beer"
+              alt="travel srilanka"
             />
-          </a>
+          </button>
         </div>
       </div>
     </section>
