@@ -16,7 +16,7 @@ const Services = () => {
         "We offer competitive rates and special discounts for long-term rentals to ensure you get the best value.",
     },
     {
-      icon: <div className="h-10 w-10 text-blue-600" />,
+      icon: <GlobeIcon className="h-10 w-10 text-blue-600" />,
       title: "24/7 Support",
       description:
         "Our customer support team is available around the clock to assist you with any queries or emergencies.",
