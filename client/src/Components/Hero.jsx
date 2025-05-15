@@ -51,7 +51,7 @@ const Hero = ({ onBookNowClick }) => {
         <div>
           <a
             title="Srilanka"
-            href="https://www.instagram.com/dr.notorio.us/"
+            href="https://www.srilanka.travel/"
             target="_blank"
             className="block w-16 h-16 rounded-full transition-all shadow hover:shadow-lg transform hover:scale-110 hover:rotate-12"
           >
