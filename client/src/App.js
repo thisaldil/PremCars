@@ -19,7 +19,6 @@ import Footer from "./Components/Footer";
 import BookingModal from "./Components/BookingModal";
 import BankInfoModal from "./Components/BankInfoModal.jsx";
 import UseBooking from "./Hooks/UseBooking";
-import Destination from "./Components/Destination.jsx";
 
 import AdminLayout from "./admin/components/AdminLayout";
 import AdminDashboard from "./admin/Pages/AdminDashboard";
@@ -91,7 +90,6 @@ function App() {
                     <Testimonials />
                     <AboutUs />
                     <Contact />
-                    <Destination />
                   </main>
 
                   <div className="relative z-[100]">
