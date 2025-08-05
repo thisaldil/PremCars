@@ -27,19 +27,24 @@ app.use("/api/cars", carRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/drivers", driverRoutes);
 
-// DB Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("✅ MongoDB Connected");
-    console.log("📂 DB Name:", mongoose.connection.name);
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB Connection Error:", err.message);
-    process.exit(1);
-  });
+// ⚠️ Vercel-compatible export (NO app.listen!)
+const server = require("http").createServer(app);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// 🔁 This allows Vercel to handle requests
+module.exports = (req, res) => {
+  // 🔁 Ensure DB is connected on each request
+  if (mongoose.connection.readyState === 0) {
+    mongoose
+      .connect(process.env.MONGO_URI)
+      .then(() => {
+        console.log("✅ MongoDB Connected");
+        server.emit("request", req, res);
+      })
+      .catch((err) => {
+        console.error("❌ MongoDB Connection Error:", err.message);
+        res.status(500).send("Database connection failed");
+      });
+  } else {
+    server.emit("request", req, res);
+  }
+};
