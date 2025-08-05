@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { Calendar, Clock, MapPin, User, Car } from "lucide-react";
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from "use-places-autocomplete";
+import "@reach/combobox/styles.css";
 
 const BookingForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -28,7 +33,6 @@ const BookingForm = ({ onSubmit }) => {
       behavior: "smooth",
     });
   };
-
   return (
     <section className="py-12 bg-gray-50" id="booking">
       <div className="container mx-auto px-4">
@@ -41,39 +45,22 @@ const BookingForm = ({ onSubmit }) => {
         <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8">
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Pick-up Location
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    name="pickupLocation"
-                    value={formData.pickupLocation}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Airport, hotel, or address"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Drop-off Location
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    name="dropoffLocation"
-                    value={formData.dropoffLocation}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Same as pick-up"
-                  />
-                </div>
-              </div>
+              <AddressAutocomplete
+                label="Pick-up Location"
+                name="pickupLocation"
+                value={formData.pickupLocation}
+                onSelect={(name, address) =>
+                  setFormData((prev) => ({ ...prev, [name]: address }))
+                }
+              />
+              <AddressAutocomplete
+                label="Drop-off Location"
+                name="dropoffLocation"
+                value={formData.dropoffLocation}
+                onSelect={(name, address) =>
+                  setFormData((prev) => ({ ...prev, [name]: address }))
+                }
+              />
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Pick-up Date
@@ -86,7 +73,7 @@ const BookingForm = ({ onSubmit }) => {
                     value={formData.pickupDate}
                     onChange={handleChange}
                     min={
-                      new Date(Date.now() + 24 * 60 * 60 * 1000) // tomorrow
+                      new Date(Date.now() + 86400000)
                         .toISOString()
                         .split("T")[0]
                     }
