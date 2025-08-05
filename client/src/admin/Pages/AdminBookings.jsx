@@ -182,7 +182,7 @@ const AdminBookings = () => {
   );
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-4 space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">All Bookings</h1>
 
       <div className="flex space-x-4 mb-4">
@@ -220,7 +220,7 @@ const AdminBookings = () => {
             return (
               <div
                 key={booking._id}
-                className="bg-white p-4 rounded-lg shadow-md space-y-2"
+                className="bg-white p-3 rounded-md shadow-sm space-y-1 text-sm"
               >
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">
@@ -243,7 +243,7 @@ const AdminBookings = () => {
                 <img
                   src={booking.car.image}
                   alt={booking.car.name}
-                  className="h-32 w-full object-cover rounded"
+                  className="h-24 w-full object-cover rounded-sm"
                 />
 
                 <div className="text-sm text-gray-700 space-y-1">
@@ -284,7 +284,7 @@ const AdminBookings = () => {
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded text-center"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1.5 rounded text-center"
                   >
                     ✉️ Email
                   </a>
@@ -297,7 +297,7 @@ const AdminBookings = () => {
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded text-center"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1.5 rounded text-center"
                   >
                     💬 WhatsApp
                   </a>
@@ -309,7 +309,7 @@ const AdminBookings = () => {
                     onChange={(e) =>
                       handleChange(booking._id, "status", e.target.value)
                     }
-                    className="border rounded px-2 py-1"
+                    className="border rounded px-2 py-1 text-xs"
                   >
                     <option value="">Update Status</option>
                     <option value="Pending">Pending</option>
@@ -338,7 +338,7 @@ const AdminBookings = () => {
 
                   <button
                     onClick={() => updateBooking(booking._id)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-3 py-1.5 text-xs rounded hover:bg-blue-700 transition"
                   >
                     Update Booking
                   </button>
