@@ -220,10 +220,10 @@ const AdminBookings = () => {
             return (
               <div
                 key={booking._id}
-                className="bg-white p-4 rounded-lg shadow-md space-y-2"
+                className="bg-white p-3 rounded-lg shadow-sm space-y-2 border border-gray-200"
               >
                 <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold">
+                  <h2 className="text-lg font-semibold text-gray-800">
                     {booking.car.name} (
                     {booking.withDriver ? "With Driver" : "No Driver"})
                   </h2>
@@ -243,10 +243,10 @@ const AdminBookings = () => {
                 <img
                   src={booking.car.image}
                   alt={booking.car.name}
-                  className="h-32 w-full object-cover rounded"
+                  className="h-24 w-full object-cover rounded-md"
                 />
 
-                <div className="text-sm text-gray-700 space-y-1">
+                <div className="text-sm text-gray-700 space-y-0.5">
                   <p>
                     📍 {booking.pickupLocation} → {booking.dropoffLocation}
                   </p>
@@ -256,13 +256,15 @@ const AdminBookings = () => {
                   <p>
                     📅 Applied: {new Date(booking.appliedDate).toDateString()}
                   </p>
-                  <p>💰 Total Bill: LKR {bill.total.toLocaleString()}</p>
-                  <p className="text-gray-500 text-xs">
+                  <p>
+                    💰 Total: <strong>LKR {bill.total.toLocaleString()}</strong>
+                  </p>
+                  <p className="text-xs text-gray-500">
                     {bill.note} × {bill.days} days
                   </p>
                 </div>
 
-                <div className="text-sm text-gray-600 mt-2">
+                <div className="text-sm text-gray-600">
                   <p>
                     <strong>Client:</strong> {booking.name}
                   </p>
@@ -274,7 +276,7 @@ const AdminBookings = () => {
                   </p>
                 </div>
 
-                <div className="flex gap-2 mt-3">
+                <div className="flex gap-2 mt-2">
                   <a
                     href={generateEmailLink(
                       booking.email,
@@ -284,7 +286,7 @@ const AdminBookings = () => {
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded text-center"
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded text-center"
                   >
                     ✉️ Email
                   </a>
@@ -297,19 +299,19 @@ const AdminBookings = () => {
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded text-center"
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1.5 rounded text-center"
                   >
                     💬 WhatsApp
                   </a>
                 </div>
 
-                <div className="flex flex-col gap-2 mt-4">
+                <div className="flex flex-col gap-2 mt-3">
                   <select
                     value={edit.status || booking.status || ""}
                     onChange={(e) =>
                       handleChange(booking._id, "status", e.target.value)
                     }
-                    className="border rounded px-2 py-1"
+                    className="border rounded px-2 py-1 text-sm"
                   >
                     <option value="">Update Status</option>
                     <option value="Pending">Pending</option>
@@ -322,7 +324,7 @@ const AdminBookings = () => {
                     onChange={(e) =>
                       handleChange(booking._id, "driver", e.target.value)
                     }
-                    className="border px-2 py-1 rounded"
+                    className="border px-2 py-1 rounded text-sm"
                   >
                     <option value="">Assign Driver</option>
                     {drivers.map((driver) => (
@@ -338,7 +340,7 @@ const AdminBookings = () => {
 
                   <button
                     onClick={() => updateBooking(booking._id)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-1.5 text-sm rounded hover:bg-blue-700 transition"
                   >
                     Update Booking
                   </button>
