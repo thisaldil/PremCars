@@ -1,10 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Calendar, Clock, MapPin, User, Car } from "lucide-react";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
-import "@reach/combobox/styles.css";
+
+// AddressAutocomplete component using Google Places API
+const AddressAutocomplete = ({ label, name, value, onSelect, placeholder }) => {
+  const inputRef = useRef(null);
+  const autocompleteRef = useRef(null);
+
+  useEffect(() => {
+    if (!window.google || !inputRef.current) return;
+
+    // Initialize Google Places Autocomplete
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(
+      inputRef.current,
+      {
+        types: ["establishment", "geocode"],
+        componentRestrictions: { country: "lk" }, // Restrict to Sri Lanka
+        fields: ["place_id", "formatted_address", "name", "geometry"],
+      }
+    );
+
+    // Handle place selection
+    const handlePlaceSelect = () => {
+      const place = autocompleteRef.current.getPlace();
+      if (place && place.formatted_address) {
+        onSelect(name, place.formatted_address, place);
+      }
+    };
+
+    autocompleteRef.current.addListener("place_changed", handlePlaceSelect);
+
+    // Cleanup
+    return () => {
+      if (autocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(
+          autocompleteRef.current
+        );
+      }
+    };
+  }, [name, onSelect]);
+
+  return (
+    <div>
+      <label className="block text-gray-700 font-medium mb-2">{label}</label>
+      <div className="relative">
+        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        <input
+          ref={inputRef}
+          type="text"
+          name={name}
+          value={value}
+          onChange={(e) => onSelect(name, e.target.value)}
+          placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+    </div>
+  );
+};
 
 const BookingForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +71,11 @@ const BookingForm = ({ onSubmit }) => {
     withDriver: false,
   });
 
+  const [placeDetails, setPlaceDetails] = useState({
+    pickup: null,
+    dropoff: null,
+  });
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -26,13 +84,39 @@ const BookingForm = ({ onSubmit }) => {
     });
   };
 
+  const handleLocationSelect = (name, address, placeData = null) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: address,
+    }));
+
+    // Store place details for later use
+    if (placeData) {
+      const detailKey = name === "pickupLocation" ? "pickup" : "dropoff";
+      setPlaceDetails((prev) => ({
+        ...prev,
+        [detailKey]: placeData,
+      }));
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    // Include place details in submission
+    const submissionData = {
+      ...formData,
+      placeDetails,
+    };
+
+    onSubmit(submissionData);
+
+    // Scroll to cars section if it exists
     document.getElementById("cars")?.scrollIntoView({
       behavior: "smooth",
     });
   };
+
   return (
     <section className="py-12 bg-gray-50" id="booking">
       <div className="container mx-auto px-4">
@@ -49,17 +133,15 @@ const BookingForm = ({ onSubmit }) => {
                 label="Pick-up Location"
                 name="pickupLocation"
                 value={formData.pickupLocation}
-                onSelect={(name, address) =>
-                  setFormData((prev) => ({ ...prev, [name]: address }))
-                }
+                onSelect={handleLocationSelect}
+                placeholder="Enter pickup location in Sri Lanka"
               />
               <AddressAutocomplete
                 label="Drop-off Location"
                 name="dropoffLocation"
                 value={formData.dropoffLocation}
-                onSelect={(name, address) =>
-                  setFormData((prev) => ({ ...prev, [name]: address }))
-                }
+                onSelect={handleLocationSelect}
+                placeholder="Enter drop-off location in Sri Lanka"
               />
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
